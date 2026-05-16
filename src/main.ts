@@ -1,21 +1,21 @@
 import "./scss/styles.scss";
 
-import { Catalog } from "./components/base/Models/Catalog";
-import { Basket } from "./components/base/Models/Basket";
-import { Buyer } from "./components/base/Models/Buyer";
+import { Products } from "./components/Models/Products";
+import { Basket } from "./components/Models/Basket";
+import { Buyer } from "./components/Models/Buyer";
 
-import { WebLarekApi } from "./components/base/WebLarekApi";
 import { Api } from "./components/base/Api";
 import { API_URL } from "./utils/constants";
 
 import { apiProducts } from "./utils/data";
+import { AppApi } from "./components/AppApi";
 
-const catalogInstance = new Catalog();
+const catalogInstance = new Products();
 catalogInstance.setItems(apiProducts.items);
 console.log("Массив товаров из каталога:", catalogInstance.getItems());
 
 const testItemId = apiProducts.items[0].id;
-const foundItem = catalogInstance.getItem(testItemId);
+const foundItem = catalogInstance.getItemById(testItemId);
 console.log("Найденный товар по ID:", foundItem);
 
 if (foundItem) {
@@ -49,35 +49,53 @@ basketInstance.clear();
 console.log("После очистки корзины:", basketInstance.getItems());
 
 const buyerInstance = new Buyer();
-buyerInstance.setPayment("online");
-buyerInstance.setEmail("test@example.com");
-buyerInstance.setPhone("+7 (123) 456-78-90");
-buyerInstance.setAddress("ул. Тестовая, д. 1");
 
-console.log("Способ оплаты:", buyerInstance.getPayment());
-console.log("Email:", buyerInstance.getEmail());
-console.log("Телефон:", buyerInstance.getPhone());
-console.log("Адрес:", buyerInstance.getAddress());
-console.log("Данные покупателя:", buyerInstance.getBuyerData());
+buyerInstance.setData({
+  payment: "online",
+  email: "test@example.com",
+  phone: "+7 (123) 456-78-90",
+  address: "ул. Тестовая, д. 1",
+});
+
+console.log("Способ оплаты:", buyerInstance.getData().payment);
+console.log("Email:", buyerInstance.getData().email);
+console.log("Телефон:", buyerInstance.getData().phone);
+console.log("Адрес:", buyerInstance.getData().address);
+console.log("Данные покупателя:", buyerInstance.getData());
 console.log("Валидация данных покупателя:", buyerInstance.validate());
 
-buyerInstance.setEmail("invalid-email");
+buyerInstance.setData({
+  email: "invalid-email",
+});
+
 console.log("Валидация с некорректным email:", buyerInstance.validate());
 
-buyerInstance.setEmail("test@example.com"); // Вернем корректный email
-buyerInstance.setPhone("no-digits");
+buyerInstance.setData({
+  email: "test@example.com",
+  phone: "no-digits",
+});
+
 console.log("Валидация с телефоном без цифр:", buyerInstance.validate());
 
 console.log("=== Интеграция с сервером: получение товаров ===");
-const apiInstance = new Api(API_URL); // Создаем экземпляр Api с базовым URL
-const webLarekApiInstance = new WebLarekApi(apiInstance); // Создаем экземпляр WebLarekApi
+
+const apiInstance = new Api(API_URL);
+const webLarekApiInstance = new AppApi(apiInstance);
 
 (async () => {
   try {
-    const products = await webLarekApiInstance.getProducts(); // Запрос товаров с сервера
-    catalogInstance.setItems(products);
-    console.log("Каталог товаров из сервера:", catalogInstance.getItems()); // Выводим в консоль
+    const productsResponse = await webLarekApiInstance.getProducts();
+
+    catalogInstance.setItems(productsResponse.items);
+
+    console.log(
+      "Каталог товаров из сервера:",
+      catalogInstance.getItems()
+    );
   } catch (error) {
-    console.error("Ошибка при получении товаров с сервера:", error);
+    console.error(
+      "Ошибка при получении товаров с сервера:",
+      error
+    );
   }
 })();

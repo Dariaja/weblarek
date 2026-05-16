@@ -1,4 +1,4 @@
-import { IBuyer, TPayment } from '../../types';
+import { IBuyer, TPayment, TBuyerErrors } from '../../types';
 
 export class Buyer {
   protected payment: TPayment | null = null;
@@ -23,12 +23,12 @@ export class Buyer {
 
   getData(): IBuyer {
     return {
-      payment: this.payment as TPayment,
-      email: this.email,
-      phone: this.phone,
-      address: this.address,
+        payment: this.payment,
+        email: this.email,
+        phone: this.phone,
+        address: this.address,
     };
-  }
+}
 
   clear(): void {
     this.payment = null;
@@ -37,8 +37,8 @@ export class Buyer {
     this.address = '';
   }
 
-  validate(): Record<string, string> {
-    const errors: Record<string, string> = {};
+  validate(): TBuyerErrors {
+    const errors: TBuyerErrors = {};
 
     if (!this.payment) {
       errors.payment = 'Не выбран способ оплаты';

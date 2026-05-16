@@ -17,20 +17,34 @@ export interface IProduct {
 }
 
 export interface IBuyer {
-    payment: TPayment;
+    payment: TPayment | null;
     email: string;
     phone: string;
     address: string;
 }
 
+export type TBuyerErrors = Partial<Record<keyof IBuyer, string>>;
 
 export interface IOrderData {
-    buyer: IBuyer;
-    products: IProduct[];
+    payment: TPayment;
+    email: string;
+    phone: string;
+    address: string;
+    total: number;
+    items: string[];
 }
 
 
 export interface IOrderResponse {
-    orderId: string;
-    status: string;
+    id: string;
+    total: number;
 }
+
+export interface IProductsResponse {
+    total: number;
+    items: IProduct[];
+}
+
+export type IOrder = IOrderData;
+
+export type IOrderResult = IOrderResponse;
