@@ -6,7 +6,7 @@ export class Buyer {
   protected email: string = "";
   protected phone: string = "";
   protected address: string = "";
-  protected events: IEvents; // Поле для брокера событий
+  protected events: IEvents;
 
   constructor(events: IEvents) {
     this.events = events;
