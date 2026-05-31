@@ -1,4 +1,4 @@
-import { IApi, IOrder, IOrderResult, IProductsResponse } from '../types';
+import { IApi, IOrder, IOrderResult, IProductsResponse } from "../types";
 
 export class AppApi {
   protected api: IApi;
@@ -8,10 +8,10 @@ export class AppApi {
   }
 
   getProducts(): Promise<IProductsResponse> {
-    return this.api.get<IProductsResponse>('/product/');
+    return this.api.get<IProductsResponse>("/product/");
   }
 
   createOrder(order: IOrder): Promise<IOrderResult> {
-    return this.api.post<IOrderResult>('/order/', order);
+    return this.api.post<IOrderResult>("/order/", order);
   }
 }
