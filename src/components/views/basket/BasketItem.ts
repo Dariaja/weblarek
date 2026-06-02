@@ -1,4 +1,3 @@
-// ИСПРАВЛЕНО: Правильный путь к соседней папке cards/Card
 import { Card } from "../cards/Card";
 
 interface IBasketItemActions {

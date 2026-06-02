@@ -15,7 +15,6 @@ export class OrderForm extends Form<IOrderForm> {
         this._cardButton = container.querySelector('button[name=card]')!;
         this._cashButton = container.querySelector('button[name=cash]')!;
 
-        // Обработка кликов по кнопкам выбора оплаты
         if (this._cardButton) {
             this._cardButton.addEventListener('click', () => {
                 this.payment = 'online';
