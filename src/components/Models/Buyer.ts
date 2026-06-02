@@ -53,27 +53,20 @@ export class Buyer {
   validate(): TBuyerErrors {
     const errors: TBuyerErrors = {};
 
-    if (!this.address || this.address.trim() === "") {
-      errors.address = "Необходимо указать адрес доставки";
-    }
-
     if (!this.payment) {
-      errors.payment = "Необходимо выбрать способ оплаты";
+        errors.payment = 'Выберите способ оплаты';
+    }
+    if (!this.address || this.address.trim() === '') {
+        errors.address = 'Укажите адрес доставки';
+    }
+    if (!this.email || this.email.trim() === '') {
+        errors.email = 'Укажите адрес электронной почты';
+    }
+    if (!this.phone || this.phone.trim() === '') {
+        errors.phone = 'Укажите номер телефона';
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!this.email) {
-      errors.email = "Необходимо указать email";
-    } else if (!emailRegex.test(this.email)) {
-      errors.email = "Некорректный формат адреса электронной почты";
-    }
-
-    const phoneRegex = /^\+?[0-9\s\-()]{10,20}$/;
-    if (!this.phone) {
-      errors.phone = "Необходимо указать номер телефона";
-    } else if (!phoneRegex.test(this.phone) || !/[0-9]/.test(this.phone)) {
-      errors.phone = "Некорректный формат номера телефона";
-    }
+    this.events.emit('buyer:errors', errors);
 
     return errors;
   }
