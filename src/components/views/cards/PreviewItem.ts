@@ -31,12 +31,9 @@ export class PreviewItem extends CatalogItem {
         }
     }
 
-    set valid(hasPrice: boolean) {
-        if (this._button) {
-            this._button.disabled = !hasPrice;
-            if (!hasPrice) {
-                this._button.textContent = "Недоступно";
-            }
+    set valid(hasPrice: boolean) { 
+        if (this._button) { 
+            this._button.disabled = !hasPrice; 
         }
     }
 }

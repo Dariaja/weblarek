@@ -66,8 +66,6 @@ export class Buyer {
         errors.phone = 'Укажите номер телефона';
     }
 
-    this.events.emit('buyer:errors', errors);
-
     return errors;
   }
 }

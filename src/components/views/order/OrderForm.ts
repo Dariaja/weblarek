@@ -1,7 +1,8 @@
 import { Form } from "./Form";
+import { TPayment } from "../../../types"; 
 
 interface IOrderForm {
-    payment: string;
+    payment: TPayment | null; 
     address: string;
 }
 
@@ -17,19 +18,18 @@ export class OrderForm extends Form<IOrderForm> {
 
         if (this._cardButton) {
             this._cardButton.addEventListener('click', () => {
-                this.payment = 'online';
                 this.onInputChange('payment', 'online');
             });
         }
+
         if (this._cashButton) {
             this._cashButton.addEventListener('click', () => {
-                this.payment = 'cash';
                 this.onInputChange('payment', 'cash');
             });
         }
     }
 
-    set payment(value: string) {
+    set payment(value: TPayment | null) {
         if (this._cardButton && this._cashButton) {
             this._cardButton.classList.toggle('button_alt-active', value === 'online');
             this._cashButton.classList.toggle('button_alt-active', value === 'cash');

@@ -1,22 +1,30 @@
-import { Form } from "./Form";
+import { Form } from "./Form"; 
 
-interface IContactsForm {
-    email: string;
-    phone: string;
-}
+interface IContactsForm { 
+    email: string; 
+    phone: string; 
+} 
 
-export class ContactsForm extends Form<IContactsForm> {
-    constructor(container: HTMLFormElement, events: any) {
-        super(container, events);
-    }
+export class ContactsForm extends Form<IContactsForm> { 
+    protected _emailInput: HTMLInputElement | null; 
+    protected _phoneInput: HTMLInputElement | null; 
 
-    set email(value: string) {
-        const input = this.container.querySelector('input[name=email]') as HTMLInputElement;
-        if (input) input.value = value;
-    }
+    constructor(container: HTMLFormElement, events: any) { 
+        super(container, events); 
 
-    set phone(value: string) {
-        const input = this.container.querySelector('input[name=phone]') as HTMLInputElement;
-        if (input) input.value = value;
-    }
+        this._emailInput = container.querySelector('input[name=email]'); 
+        this._phoneInput = container.querySelector('input[name=phone]'); 
+    } 
+
+    set email(value: string) { 
+        if (this._emailInput) {
+            this._emailInput.value = value; 
+        }
+    } 
+
+    set phone(value: string) { 
+        if (this._phoneInput) {
+            this._phoneInput.value = value; 
+        }
+    } 
 }

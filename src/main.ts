@@ -6,15 +6,16 @@ import { Products } from "./components/Models/Products";
 import { Basket } from "./components/Models/Basket";
 import { Buyer } from "./components/Models/Buyer";
 
+import { Header } from "./components/Header"; 
 import { CatalogItem } from "./components/views/cards/CatalogItem";
 import { PreviewItem } from "./components/views/cards/PreviewItem";
 import { BasketItem } from "./components/views/basket/BasketItem";
 import { BasketView } from "./components/views/basket/BasketView";
 import { Modal } from "./components/Modal";
+
 import { OrderForm } from "./components/views/order/OrderForm";
 import { ContactsForm } from "./components/views/order/ContactsForm";
 import { SuccessView } from "./components/views/order/Success"; 
-
 import { API_URL } from "./utils/constants";
 import { AppApi } from "./components/AppApi";
 import { IProduct, TPayment } from "./types";
@@ -28,8 +29,8 @@ const basketModel = new Basket(events);
 const buyerModel = new Buyer(events);
 
 const galleryElement = document.querySelector(".gallery") as HTMLElement;
-const basketHeaderButton = document.querySelector(".header__basket") as HTMLButtonElement;
-const basketCounter = document.querySelector(".header__basket-counter") as HTMLElement;
+
+const header = new Header(document.querySelector(".header") as HTMLElement, events);
 
 const cardCatalogTemplate = document.querySelector("#card-catalog") as HTMLTemplateElement;
 const cardPreviewTemplate = document.querySelector("#card-preview") as HTMLTemplateElement;
@@ -81,9 +82,15 @@ events.on("card:select", (item: IProduct) => {
 
 events.on("preview:changed", (item: IProduct) => {
     const isInBasket = basketModel.hasItem(item.id);
+    const hasPrice = item.price !== null;
     
-    previewCard.buttonText = isInBasket ? "Удалить из корзины" : "В корзину";
-    previewCard.valid = item.price !== null;
+    if (!hasPrice) {
+        previewCard.buttonText = "Недоступно";
+    } else {
+        previewCard.buttonText = isInBasket ? "Удалить из корзины" : "В корзину";
+    }
+    
+    previewCard.valid = hasPrice;
 
     modal.content = previewCard.render({
         title: item.title,
@@ -95,15 +102,16 @@ events.on("preview:changed", (item: IProduct) => {
     modal.open();
 });
 
-basketHeaderButton.addEventListener("click", () => {
-    modal.content = basketView.render();
+events.on('header:open-basket', () => {
+    modal.content = basketView.render(); 
     modal.open();
 });
 
 events.on("cart:changed", () => {
     const itemsInBasket = basketModel.getItems(); 
     
-    basketCounter.textContent = String(itemsInBasket.length);
+    header.counter = itemsInBasket.length;
+    
     basketView.total = basketModel.getTotal();
 
     basketView.items = itemsInBasket.map((item, index) => {
@@ -127,7 +135,6 @@ events.on("order:open", () => {
 
 events.on(/^order\..*:change$/, (data: { field: string; value: any }) => {
     buyerModel.setData({ [data.field]: data.value });
-    buyerModel.validate();
 });
 
 events.on("order:submit", () => {
@@ -136,20 +143,27 @@ events.on("order:submit", () => {
 
 events.on(/^contacts\..*:change$/, (data: { field: string; value: string }) => {
     buyerModel.setData({ [data.field]: data.value });
-    buyerModel.validate();
 });
 
-events.on("buyer:errors", (errors: Partial<Record<string, string>>) => {
+events.on("buyer:changed", () => {
+    const errors = buyerModel.validate();
+    const buyerData = buyerModel.getData();
+
     const orderFields: Array<'payment' | 'address'> = ['payment', 'address'];
     const contactsFields: Array<'email' | 'phone'> = ['email', 'phone'];
 
     const hasOrderErrors = orderFields.some(field => !!errors[field]);
     orderForm.valid = !hasOrderErrors;
     orderForm.errors = orderFields.map(field => errors[field]).filter(Boolean) as string[];
+    
+    orderForm.address = buyerData.address;
+    orderForm.payment = buyerData.payment;
 
     const hasContactsErrors = contactsFields.some(field => !!errors[field]);
     contactsForm.valid = !hasContactsErrors;
     contactsForm.errors = contactsFields.map(field => errors[field]).filter(Boolean) as string[];
+    contactsForm.email = buyerData.email;
+    contactsForm.phone = buyerData.phone;
 });
 
 events.on("contacts:submit", async () => {
@@ -187,6 +201,8 @@ events.on("success:close", () => {
     try {
         const productsResponse = await webLarekApiInstance.getProducts();
         productsModel.setItems(productsResponse.items);
+        
+        events.emit("products:changed", { items: productsModel.getItems() });
     } catch {
     }
 })();
